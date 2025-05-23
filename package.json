@@ -28,6 +28,7 @@
     "expo-symbols": "~0.4.4",
     "expo-system-ui": "~5.0.7",
     "expo-web-browser": "~14.1.6",
+    "firebase": "^11.8.1",
     "lodash": "^4.17.21",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -51,5 +52,18 @@
     "eslint-config-expo": "~9.2.0",
     "typescript": "~5.8.3"
   },
-  "private": true
+  "private": true,
+  "description": "This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Seonguk1/Zolaverse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Seonguk1/Zolaverse/issues"
+  },
+  "homepage": "https://github.com/Seonguk1/Zolaverse#readme"
 }
