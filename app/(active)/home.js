@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
+
+import { db } from "@/config/firebase";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 
 export default function Home() {
   const zola = useRef(null);
@@ -30,7 +33,7 @@ export default function Home() {
         <Pressable
           onPress={() => {
             setIsPressed(true);
-            play('die', false, 
+            play('die', false,
               () => {
                 setIsPressed(false);
                 console.log("끝")
@@ -53,6 +56,30 @@ export default function Home() {
             }}
           />
         </Pressable>
+        <Button
+          title="addDoc"
+          onPress={async () => {
+            try {
+              const docRef = await addDoc(collection(db, "users"), {
+                first: "Ada",
+                last: "Lovelace",
+                born: 1815
+              });
+              console.log("Document written with ID: ", docRef.id);
+            } catch (e) {
+              console.error("Error adding document: ", e);
+            }
+          }}
+        />
+        <Button
+          title="getDocs" 
+          onPress={async () => {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            querySnapshot.forEach((doc) => {
+              console.log(`${doc.id} => ${doc.data().first}`);
+            });
+          }}
+        />
       </View>
     </SafeAreaView>
   )
