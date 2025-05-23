@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, SafeAreaView, StyleSheet, View } from "react-native";
+import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
 
 export default function Home() {
@@ -7,7 +7,7 @@ export default function Home() {
   const [isPressed, setIsPressed] = useState(false);
 
   useEffect(() => {
-    play('walk', true)
+    play('walk', true);
   }, [])
 
   const play = (type, loop, onFinish = () => { }) => {
@@ -26,13 +26,14 @@ export default function Home() {
 
       </View>
       <View style={styles.main}>
-        {/* {isPressed && <Text>남은건 죽음 뿐이다...</Text>} */}
+        {isPressed && <Text>남은건 죽음 뿐이다...</Text>}
         <Pressable
           onPress={() => {
-            // setIsPressed(true);
+            setIsPressed(true);
             play('die', false, 
               () => {
-                // setIsPressed(false);
+                setIsPressed(false);
+                console.log("끝")
                 play('walk', true);
               }
             )
