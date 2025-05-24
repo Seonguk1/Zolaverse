@@ -1,4 +1,7 @@
+import LoadingOverlay from "@/components/loading/LoadingOverlay";
+import { auth } from "@/config/firebase";
 import { useRouter } from "expo-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { createRStyle } from "react-native-full-responsive";
@@ -18,6 +21,21 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [onFocus, setOnFocus] = useState('');
     const passwordRef = useRef(null);
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async () => {
+        setLoading(true);
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            router.replace('/home');
+        } catch (error) {
+            console.error(error);
+            Alert.alert('로그인 실패', error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView
@@ -25,6 +43,7 @@ export default function Login() {
                 style={styles.container}
             >
                 <SafeAreaView style={styles.container}>
+                    {loading && <LoadingOverlay />}
                     <View style={styles.loginForm}>
                         <Text style={styles.title}>Login</Text>
                         <TextInput
@@ -60,6 +79,7 @@ export default function Login() {
                         <View style={{ flexDirection: "row" }}>
                             <Pressable
                                 style={styles.loginSubmit}
+                                onPress={handleLogin}
                             >
                                 <Text style={styles.loginText}> Login </Text>
                             </Pressable>
@@ -93,9 +113,9 @@ const styles = createRStyle({
         padding: 10,
         marginBottom: 20
     },
-    focusedInput:{
-        borderColor:palette[1],
-        borderWidth:1
+    focusedInput: {
+        borderColor: palette[1],
+        borderWidth: 1
     },
     title: {
         color: palette[2],
