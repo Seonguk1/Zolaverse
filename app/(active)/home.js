@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
 
-import { db } from "@/config/firebase";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+
+import LoadingView from "@/components/loading/LoadingView";
+import useUserInfo from "@/hooks/useUser/useUserInfo";
 
 export default function Home() {
   const zola = useRef(null);
   const [isPressed, setIsPressed] = useState(false);
+  const {userInfo, userLoading} = useUserInfo();
 
   useEffect(() => {
     play('walk', true);
@@ -21,6 +23,10 @@ export default function Home() {
       resetAfterFinish: false,
       onFinish,
     })
+  }
+
+  if(userLoading){
+    return <LoadingView/>
   }
 
   return (
@@ -56,30 +62,7 @@ export default function Home() {
             }}
           />
         </Pressable>
-        <Button
-          title="addDoc"
-          onPress={async () => {
-            try {
-              const docRef = await addDoc(collection(db, "users"), {
-                first: "Ada",
-                last: "Lovelace",
-                born: 1815
-              });
-              console.log("Document written with ID: ", docRef.id);
-            } catch (e) {
-              console.error("Error adding document: ", e);
-            }
-          }}
-        />
-        <Button
-          title="getDocs" 
-          onPress={async () => {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            querySnapshot.forEach((doc) => {
-              console.log(`${doc.id} => ${doc.data().first}`);
-            });
-          }}
-        />
+        
       </View>
     </SafeAreaView>
   )

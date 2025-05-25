@@ -6,16 +6,16 @@ import { useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useRef, useState } from "react";
 import {
-    Alert,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    SafeAreaView,
-    Text,
-    TextInput,
-    TouchableWithoutFeedback,
-    View
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View
 } from "react-native";
 import { createRStyle } from "react-native-full-responsive";
 
@@ -146,6 +146,12 @@ export default function SignUp() {
               >
                 <Text style={styles.loginText}> Sign in </Text>
               </Pressable>
+              <Pressable
+                style={styles.back}
+                onPress={() => { router.back() }}
+              >
+                <Text style={styles.backText}> back </Text>
+              </Pressable>
             </View>
           </View>
         </SafeAreaView>
@@ -202,7 +208,14 @@ const styles = createRStyle({
     justifyContent: "center"
   },
   loginForm: {
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  back: {
+    alignItems:"center",
+    justifyContent:"center"
+  },
+  backText: {
+    color: palette[2],
+    fontWeight: "bold",
+    fontSize: `${SIZE * 0.7}rs`,
   }
 });
