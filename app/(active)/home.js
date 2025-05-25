@@ -1,19 +1,28 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
 
 
 import LoadingView from "@/components/loading/LoadingView";
-import useUserInfo from "@/hooks/useUser/useUserInfo";
+import useGetUserDoc from "@/hooks/useUser/useGetUserDoc";
 
 export default function Home() {
   const zola = useRef(null);
   const [isPressed, setIsPressed] = useState(false);
-  const {userInfo, userLoading} = useUserInfo();
+  const { user, userDoc, userLoading } = useGetUserDoc();
 
   useEffect(() => {
-    play('walk', true);
-  }, [])
+    const interval = setInterval(() => {
+      if (zola.current) {
+        play('walk', true);
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
 
   const play = (type, loop, onFinish = () => { }) => {
     zola.current?.play({
@@ -25,8 +34,8 @@ export default function Home() {
     })
   }
 
-  if(userLoading){
-    return <LoadingView/>
+  if (userLoading) {
+    return <LoadingView />
   }
 
   return (
@@ -62,7 +71,15 @@ export default function Home() {
             }}
           />
         </Pressable>
-        
+
+        <Button
+          title="asd"
+          onPress={() => {
+            console.log(`currentUser : ${JSON.stringify(user, null, 2)}`);
+            console.log(`userDoc : ${JSON.stringify(userDoc, null, 2)}`);
+          }}
+        />
+
       </View>
     </SafeAreaView>
   )
