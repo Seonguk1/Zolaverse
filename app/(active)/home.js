@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, SafeAreaView, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
 
 
 import LoadingView from "@/components/loading/LoadingView";
 import useGetUserDoc from "@/hooks/useUser/useGetUserDoc";
+
+import { createRStyle } from "react-native-full-responsive";
+// import { SIZE, palette } from '@/constants/theme';
 
 export default function Home() {
   const zola = useRef(null);
@@ -85,7 +88,7 @@ export default function Home() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = createRStyle({
   container: {
     flex: 1,
     backgroundColor: "#fff",

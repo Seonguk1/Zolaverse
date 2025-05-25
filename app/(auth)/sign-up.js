@@ -17,11 +17,9 @@ import {
   TouchableWithoutFeedback,
   View
 } from "react-native";
+
+import { SIZE, palette } from '@/constants/theme';
 import { createRStyle } from "react-native-full-responsive";
-
-const SIZE = 20;
-
-const palette = ["#F9F7F7", "#DBE2EF", "#3F72AF", "#112D4E"];
 
 export default function SignUp() {
   const router = useRouter();

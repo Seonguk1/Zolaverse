@@ -2,7 +2,9 @@ import LoadingOverlay from "@/components/loading/LoadingOverlay";
 import LoadingView from "@/components/loading/LoadingView";
 import useGetUserDoc from "@/hooks/useUser/useGetUserDoc";
 import useUpdateUserDoc from "@/hooks/useUser/useUpdateUserDoc";
-import { Button, SafeAreaView, StyleSheet } from "react-native";
+import { Button, SafeAreaView } from "react-native";
+import { createRStyle } from "react-native-full-responsive";
+// import { SIZE, palette } from '@/constants/theme';
 export default function Setup (){
     const {user, userDoc, userLoading} = useGetUserDoc();
     const {updateUserDoc, updateLoading} = useUpdateUserDoc();
@@ -24,7 +26,7 @@ export default function Setup (){
     )
 }
 
-const styles = StyleSheet.create({
+const styles = createRStyle({
     container:{
         flex:1,
         backgroundColor: "#fff",

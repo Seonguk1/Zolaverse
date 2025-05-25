@@ -1,19 +1,11 @@
 import LoadingOverlay from "@/components/loading/LoadingOverlay";
 import { auth } from "@/config/firebase";
+import { SIZE, palette } from '@/constants/theme';
 import { useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { createRStyle } from "react-native-full-responsive";
-
-const SIZE = 20;
-
-const palette = [
-    "#F9F7F7",
-    "#DBE2EF",
-    "#3F72AF",
-    "#112D4E",
-]
 
 export default function Login() {
     const router = useRouter();
