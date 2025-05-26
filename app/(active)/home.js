@@ -30,7 +30,7 @@ export default function Home() {
   const play = (type, loop, onFinish = () => { }) => {
     zola.current?.play({
       type,
-      fps: Number(16),
+      fps: Number(10),
       loop,
       resetAfterFinish: false,
       onFinish,
@@ -63,14 +63,16 @@ export default function Home() {
         >
           <SpriteSheet
             ref={ref => (zola.current = ref)}
-            source={require('@/assets/images/mummy.png')}
-            columns={9}
-            rows={6}
+            source={require('@/assets/images/run-slashing.png')}
+            columns={4}
+            rows={3}
+            height={(2000/3)/2}
             imageStyle={{ marginTop: -1 }}
             animations={{
-              walk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-              appear: Array.from({ length: 15 }, (v, i) => i + 18),
-              die: Array.from({ length: 21 }, (v, i) => i + 33),
+              walk:[0,1,2,3,4,5]
+              // walk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+              // appear: Array.from({ length: 15 }, (v, i) => i + 18),
+              // die: Array.from({ length: 21 }, (v, i) => i + 33),
             }}
           />
         </Pressable>
