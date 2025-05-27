@@ -2,28 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Pressable, SafeAreaView, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
 
-
 import LoadingView from "@/components/loading/LoadingView";
 import useGetUserDoc from "@/hooks/useUser/useGetUserDoc";
 
 import { createRStyle } from "react-native-full-responsive";
 // import { SIZE, palette } from '@/constants/theme';
 
+import { getCurrentState } from "@/utils/timeUtils";
+
 export default function Home() {
   const zola = useRef(null);
   const [isPressed, setIsPressed] = useState(false);
   const { user, userDoc, userLoading } = useGetUserDoc();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (zola.current) {
-        play('walk', true);
-        clearInterval(interval);
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
 
 
 
@@ -37,9 +27,22 @@ export default function Home() {
     })
   }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (zola.current) {
+        play('walk', true);
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (userLoading) {
     return <LoadingView />
   }
+  
+  const status = getCurrentState(userDoc?.sleepStart, userDoc?.sleepEnd, userDoc?.workStart, userDoc?.workEnd);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -66,10 +69,10 @@ export default function Home() {
             source={require('@/assets/images/run-slashing.png')}
             columns={4}
             rows={3}
-            height={(2000/3)/2}
+            height={(2000 / 3) / 2}
             imageStyle={{ marginTop: -1 }}
             animations={{
-              walk:[0,1,2,3,4,5]
+              walk: [0, 1, 2, 3, 4, 5]
               // walk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
               // appear: Array.from({ length: 15 }, (v, i) => i + 18),
               // die: Array.from({ length: 21 }, (v, i) => i + 33),

@@ -1,81 +1,97 @@
-import * as Calendar from 'expo-calendar';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, FlatList, Platform, Text, View } from 'react-native';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useState } from "react";
+import { Button, Platform, Text, View } from "react-native";
 
-export default function CalendarEventsScreen() {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(false);
+// import useGetUserDoc from "@/hooks/useUser/useGetUserDoc";
+import useUpdateUserDoc from "@/hooks/useUser/useUpdateUserDoc";
 
-    const getDefaultCalendarSource = async () => {
-        if (Platform.OS === 'ios') {
-            const defaultCalendar = await Calendar.getDefaultCalendarAsync();
-            return defaultCalendar.source;
-        } else {
-            return { isLocalAccount: true, name: 'Expo Calendar' };
-        }
-    };
+export default function RoutineSetupScreen() {
+    // const {user, userDoc, userLoading} = useGetUserDoc();
+    const {updateUserDoc, updateLoading} = useUpdateUserDoc();
+    const [sleepStart, setSleepStart] = useState(new Date());
+    const [sleepEnd, setSleepEnd] = useState(new Date());
+    const [workStart, setWorkStart] = useState(new Date());
+    const [workEnd, setWorkEnd] = useState(new Date());
 
-    const fetchEvents = async () => {
-        setLoading(true);
-        try {
-            const { status } = await Calendar.requestCalendarPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('권한 필요', '캘린더 접근 권한이 필요합니다.');
-                setLoading(false);
-                return;
+    const [showPicker, setShowPicker] = useState({ type: null, visible: false });
+
+    const openPicker = (type) => setShowPicker({ type, visible: true });
+
+    const handleChange = (event, selectedDate) => {
+        if (Platform.OS === "android") setShowPicker({ ...showPicker, visible: false });
+
+        if (selectedDate) {
+            switch (showPicker.type) {
+                case "sleepStart":
+                    setSleepStart(selectedDate);
+                    break;
+                case "sleepEnd":
+                    setSleepEnd(selectedDate);
+                    break;
+                case "workStart":
+                    setWorkStart(selectedDate);
+                    break;
+                case "workEnd":
+                    setWorkEnd(selectedDate);
+                    break;
             }
-
-            const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-            const writableCalendars = calendars.filter(cal => cal.allowsModifications);
-
-            // 캘린더 ID 목록 추출
-            const calendarIds = writableCalendars.map(cal => cal.id);
-
-            const now = new Date('2000-01-01');
-            const end = new Date('2030-01-01');
-
-            const events = await Calendar.getEventsAsync(calendarIds, now, end);
-
-            setEvents(events);
-        } catch (error) {
-            console.error('캘린더 이벤트 가져오기 실패', error);
-            Alert.alert('오류', '캘린더 이벤트를 가져오는 데 실패했습니다.');
-        } finally {
-            setLoading(false);
         }
     };
-
-    useEffect(() => {
-        fetchEvents();
-    }, []);
 
     const formatTime = (date) => {
-        const d = new Date(date);
-        return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     };
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>오늘의 캘린더 이벤트</Text>
-            {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : events.length === 0 ? (
-                <Text>오늘 등록된 일정이 없습니다.</Text>
-            ) : (
-                <FlatList
-                    data={events}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <View style={{ paddingVertical: 8, borderBottomWidth: 1, borderColor: '#ccc' }}>
-                            <Text style={{ fontWeight: 'bold' }}>{item.title || '(제목 없음)'}</Text>
-                            <Text>
-                                {formatTime(item.startDate)} ~ {formatTime(item.endDate)}
-                            </Text>
-                        </View>
-                    )}
+        <View style={{ padding: 20 }}>
+            <Text>🛌 수면 시간 설정</Text>
+            <Button title={`수면 시작: ${formatTime(sleepStart)}`} onPress={() => openPicker("sleepStart")} />
+            <Button title={`수면 종료: ${formatTime(sleepEnd)}`} onPress={() => openPicker("sleepEnd")} />
+
+            <Text style={{ marginTop: 20 }}>💼 일하는 시간 설정</Text>
+            <Button title={`일 시작: ${formatTime(workStart)}`} onPress={() => openPicker("workStart")} />
+            <Button title={`일 종료: ${formatTime(workEnd)}`} onPress={() => openPicker("workEnd")} />
+
+            {showPicker.visible && (
+                <DateTimePicker
+                    mode="time"
+                    value={
+                        {
+                            sleepStart,
+                            sleepEnd,
+                            workStart,
+                            workEnd
+                        }[showPicker.type]
+                    }
+                    onChange={handleChange}
                 />
             )}
-            <Button title="새로고침" onPress={fetchEvents} />
+            <View style={{ marginTop: 30 }}>
+                <Button
+                    title="설정 완료"
+                    onPress={async () => {
+                        const printTime = (date) => {
+                            const hours = date.getHours().toString().padStart(2, "0");
+                            const minutes = date.getMinutes().toString().padStart(2, "0");
+                            return `${hours}:${minutes}`;
+                        };
+
+                        console.log("수면 시작:", printTime(sleepStart));
+                        console.log("수면 종료:", printTime(sleepEnd));
+                        console.log("일 시작:", printTime(workStart));
+                        console.log("일 종료:", printTime(workEnd));
+
+                        await updateUserDoc({
+                            sleepStart:printTime(sleepStart),
+                            sleepEnd:printTime(sleepEnd),
+                            workStart:printTime(workStart),
+                            workEnd:printTime(workEnd)
+                        })
+                        
+                        console.log("성공")
+                    }}
+                />
+            </View>
         </View>
     );
 }

@@ -14,14 +14,14 @@ export default function useUserInfo (){
                 const currentUser = auth.currentUser;
                 if (!currentUser) {
                     router.replace('/login');
-                    return;
+                    return; 
                 }
                 const docSnap = await getDoc(doc(db, "users", currentUser.uid));
                 if (!docSnap.exists()) {
                     router.replace('/login');
                 }
                 setUser(currentUser);
-                setUserDoc(docSnap  .data());
+                setUserDoc(docSnap.data());
             } catch (err) {
                 console.error("userInfo 가져오기 실패", err);
                 router.replace('/login');
