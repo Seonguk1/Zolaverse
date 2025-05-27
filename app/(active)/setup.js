@@ -1,60 +1,81 @@
-import LoadingView from "@/components/loading/LoadingView";
-import RoutineInput from "@/components/RoutineInput";
-import useRoutineManager from "@/hooks/useRoutineManager";
-import useGetUserDoc from "@/hooks/useUser/useGetUserDoc";
-import { useState } from "react";
-import { Alert, Button, ScrollView, Text } from "react-native";
+import * as Calendar from 'expo-calendar';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Button, FlatList, Platform, Text, View } from 'react-native';
 
-export default function Setup() {
-    const { user, userDoc, userLoading } = useGetUserDoc();
+export default function CalendarEventsScreen() {
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    if (userLoading) {
-
-        return <LoadingView />
-    }
-
-    const {
-        saveRoutineRule,
-        routineSaving,
-        routineError,
-    } = useRoutineManager(user?.uid);
-    console.log(user?.uid)
-    const [startDate, setStartDate] = useState("2025-06-01");
-    const [repeat, setRepeat] = useState(true);
-    const [repeatType, setRepeatType] = useState("weekly");
-    const [repeatDays, setRepeatDays] = useState(["mon", "tue", "wed", "thu", "fri"]);
-    const [until, setUntil] = useState("2025-08-01");
-    const [routines, setRoutines] = useState([
-        { category: "sleep", start: "23:00", end: "07:00" },
-        { category: "work", start: "09:00", end: "18:00" }
-    ]);
-
-    const handleSave = async () => {
-        try {
-            await saveRoutineRule({ startDate, repeat, repeatType, repeatDays, until, routines });
-            Alert.alert("루틴 저장 완료", "기본 루틴이 저장되었습니다");
-        } catch (err) {
-            Alert.alert("오류", "루틴 저장 중 문제가 발생했습니다");
+    const getDefaultCalendarSource = async () => {
+        if (Platform.OS === 'ios') {
+            const defaultCalendar = await Calendar.getDefaultCalendarAsync();
+            return defaultCalendar.source;
+        } else {
+            return { isLocalAccount: true, name: 'Expo Calendar' };
         }
     };
 
+    const fetchEvents = async () => {
+        setLoading(true);
+        try {
+            const { status } = await Calendar.requestCalendarPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('권한 필요', '캘린더 접근 권한이 필요합니다.');
+                setLoading(false);
+                return;
+            }
+
+            const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+            const writableCalendars = calendars.filter(cal => cal.allowsModifications);
+
+            // 캘린더 ID 목록 추출
+            const calendarIds = writableCalendars.map(cal => cal.id);
+
+            const now = new Date('2000-01-01');
+            const end = new Date('2030-01-01');
+
+            const events = await Calendar.getEventsAsync(calendarIds, now, end);
+
+            setEvents(events);
+        } catch (error) {
+            console.error('캘린더 이벤트 가져오기 실패', error);
+            Alert.alert('오류', '캘린더 이벤트를 가져오는 데 실패했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    const formatTime = (date) => {
+        const d = new Date(date);
+        return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    };
+
     return (
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-            <Text style={{ fontSize: 20, marginBottom: 10 }}>기본 루틴 설정</Text>
-
-            <RoutineInput
-                routines={routines}
-                setRoutines={setRoutines}
-            />
-
-            {/* 반복 설정 정보는 추후 date picker나 toggle 등 UI 연동 */}
-            <Text style={{ marginVertical: 10 }}>시작일: {startDate}</Text>
-            <Text>종료일: {until}</Text>
-            <Text>반복: {repeat ? `(${repeatType}) ${repeatDays.join(", ")}` : "안 함"}</Text>
-
-            <Button title={routineSaving ? "저장 중..." : "루틴 저장"} onPress={handleSave} disabled={routineSaving} />
-            
-            {routineError && <Text style={{ color: "red" }}>에러: {routineError.message}</Text>}
-        </ScrollView>
+        <View style={{ flex: 1, padding: 20 }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>오늘의 캘린더 이벤트</Text>
+            {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : events.length === 0 ? (
+                <Text>오늘 등록된 일정이 없습니다.</Text>
+            ) : (
+                <FlatList
+                    data={events}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <View style={{ paddingVertical: 8, borderBottomWidth: 1, borderColor: '#ccc' }}>
+                            <Text style={{ fontWeight: 'bold' }}>{item.title || '(제목 없음)'}</Text>
+                            <Text>
+                                {formatTime(item.startDate)} ~ {formatTime(item.endDate)}
+                            </Text>
+                        </View>
+                    )}
+                />
+            )}
+            <Button title="새로고침" onPress={fetchEvents} />
+        </View>
     );
 }
