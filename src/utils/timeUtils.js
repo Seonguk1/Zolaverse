@@ -20,7 +20,7 @@ export const getCurrentState = (sleepStart, sleepEnd, workStart, workEnd) => {
   const workEndM = timeStrToMinutes(workEnd);
   const now = getCurrentMinutes();
 
-  if (isInRange(sleepStartM, sleepEndM, now)) return "잠";
-  if (isInRange(workStartM, workEndM, now)) return "일";
-  return "여가";
+  if (isInRange(sleepStartM, sleepEndM, now)) return "sleep";
+  if (isInRange(workStartM, workEndM, now)) return "work";
+  return "rest";
 };

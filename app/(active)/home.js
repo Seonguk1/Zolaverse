@@ -15,34 +15,65 @@ export default function Home() {
   const [isPressed, setIsPressed] = useState(false);
   const { user, userDoc, userLoading } = useGetUserDoc();
 
-
+  const [imgSource, setImgSource] = useState(require('@/assets/images/mashmell/Merged_image.png'));
 
   const play = (type, loop, onFinish = () => { }) => {
     zola.current?.play({
       type,
-      fps: Number(10),
+      fps: Number(5),
       loop,
       resetAfterFinish: false,
       onFinish,
     })
   }
 
+  const [status, setStatus] = useState(null);
+
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (!userDoc) return;
+
+    const initial = getCurrentState(
+      userDoc.sleepStart,
+      userDoc.sleepEnd,
+      userDoc.workStart,
+      userDoc.workEnd
+    );
+    setStatus(initial);
+    console.log(`initial status : ${initial}`);
+
+    const zolaInterval = setInterval(() => {
       if (zola.current) {
-        play('walk', true);
-        clearInterval(interval);
+        play(initial, true);
+        clearInterval(zolaInterval);
       }
     }, 100);
 
-    return () => clearInterval(interval);
-  }, []);
+    const interval = setInterval(() => {
+      const updated = getCurrentState(
+        userDoc.sleepStart,
+        userDoc.sleepEnd,
+        userDoc.workStart,
+        userDoc.workEnd
+      );
+      setStatus(updated);
+      console.log(`updated status : ${updated}`);
+      play(updated, true);
+    }, 60000);
+
+    return () => {
+      clearInterval(zolaInterval);
+      clearInterval(interval);
+    };
+  }, [
+    userDoc?.sleepStart,
+    userDoc?.sleepEnd,
+    userDoc?.workStart,
+    userDoc?.workEnd
+  ]);
 
   if (userLoading) {
     return <LoadingView />
   }
-  
-  const status = getCurrentState(userDoc?.sleepStart, userDoc?.sleepEnd, userDoc?.workStart, userDoc?.workEnd);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,7 +89,7 @@ export default function Home() {
               () => {
                 setIsPressed(false);
                 console.log("끝")
-                play('walk', true);
+                play('sleep', true);
               }
             )
           }}
@@ -66,14 +97,16 @@ export default function Home() {
         >
           <SpriteSheet
             ref={ref => (zola.current = ref)}
-            source={require('@/assets/images/run-slashing.png')}
-            columns={4}
+            source={imgSource}
+            columns={5}
             rows={3}
-            height={(2000 / 3) / 2}
+            height={480 * 0.5}
+            width={600 * 0.5}
             imageStyle={{ marginTop: -1 }}
             animations={{
-              walk: [0, 1, 2, 3, 4, 5]
-              // walk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+              sleep: [0, 1, 2, 3, 4],
+              work: [5, 6, 7, 8, 9, 10]
+              // sleep: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
               // appear: Array.from({ length: 15 }, (v, i) => i + 18),
               // die: Array.from({ length: 21 }, (v, i) => i + 33),
             }}
@@ -83,8 +116,6 @@ export default function Home() {
         <Button
           title="asd"
           onPress={() => {
-            console.log(`currentUser : ${JSON.stringify(user, null, 2)}`);
-            console.log(`userDoc : ${JSON.stringify(userDoc, null, 2)}`);
           }}
         />
 
