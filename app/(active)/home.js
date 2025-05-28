@@ -10,6 +10,10 @@ import { createRStyle } from "react-native-full-responsive";
 
 import { getCurrentState } from "@/utils/timeUtils";
 
+// 해야할 것
+// workEnd 00:00 , workStart 23:59 되는지?
+// 시각이 겹쳤을 때 어떻게 되는지, 어떻게 할 지?
+
 export default function Home() {
   const zola = useRef(null);
   const [isPressed, setIsPressed] = useState(false);
@@ -85,7 +89,7 @@ export default function Home() {
         <Pressable
           onPress={() => {
             setIsPressed(true);
-            play('die', false,
+            play('rest', false,
               () => {
                 setIsPressed(false);
                 console.log("끝")
@@ -99,16 +103,14 @@ export default function Home() {
             ref={ref => (zola.current = ref)}
             source={imgSource}
             columns={5}
-            rows={3}
+            rows={6}
             height={480 * 0.5}
             width={600 * 0.5}
             imageStyle={{ marginTop: -1 }}
             animations={{
-              sleep: [0, 1, 2, 3, 4],
-              work: [5, 6, 7, 8, 9, 10]
-              // sleep: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-              // appear: Array.from({ length: 15 }, (v, i) => i + 18),
-              // die: Array.from({ length: 21 }, (v, i) => i + 33),
+              rest: Array.from({length:14}, (v,i)=>i),
+              sleep: Array.from({length:5}, (v,i)=>i+15),
+              work: Array.from({length:6}, (v,i)=>i+20),
             }}
           />
         </Pressable>

@@ -48,7 +48,8 @@
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "rn-sprite-sheet": "^1.1.12",
-    "@react-native-community/datetimepicker": "8.3.0"
+    "@react-native-community/datetimepicker": "8.3.0",
+    "@shopify/flash-list": "1.7.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
