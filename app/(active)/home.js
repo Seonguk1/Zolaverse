@@ -1,3 +1,4 @@
+import { auth } from '@/config/firebase';
 import { useEffect, useRef, useState } from "react";
 import { Button, Pressable, SafeAreaView, Text, View } from "react-native";
 import SpriteSheet from 'rn-sprite-sheet';
@@ -9,6 +10,7 @@ import { createRStyle } from "react-native-full-responsive";
 // import { SIZE, palette } from '@/constants/theme';
 
 import { getCurrentState } from "@/utils/timeUtils";
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 // 해야할 것
 // workEnd 00:00 , workStart 23:59 되는지?
@@ -79,6 +81,27 @@ export default function Home() {
     return <LoadingView />
   }
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      const waitForLogout = () => new Promise(resolve => {
+        const unsub = onAuthStateChanged(auth, (user) => {
+          if (!user) {
+            resolve();
+            unsub();
+          }
+        });
+      });
+
+      await waitForLogout();
+      console.log("로그아웃 성공");
+      console.log(user.uid);
+
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -108,17 +131,16 @@ export default function Home() {
             width={600 * 0.5}
             imageStyle={{ marginTop: -1 }}
             animations={{
-              rest: Array.from({length:14}, (v,i)=>i),
-              sleep: Array.from({length:5}, (v,i)=>i+15),
-              work: Array.from({length:6}, (v,i)=>i+20),
+              rest: Array.from({ length: 14 }, (v, i) => i),
+              sleep: Array.from({ length: 5 }, (v, i) => i + 15),
+              work: Array.from({ length: 6 }, (v, i) => i + 20),
             }}
           />
         </Pressable>
 
         <Button
-          title="asd"
-          onPress={() => {
-          }}
+          title="로그아웃"
+          onPress={handleLogout}
         />
 
       </View>

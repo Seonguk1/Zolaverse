@@ -15,4 +15,4 @@ import { doc, setDoc } from "firebase/firestore";
         }
     }
 
-    export default createUser;
+    export default createUser;  

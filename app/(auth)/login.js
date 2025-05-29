@@ -2,7 +2,7 @@ import LoadingOverlay from "@/components/loading/LoadingOverlay";
 import { auth } from "@/config/firebase";
 import { SIZE, palette } from '@/constants/theme';
 import { useRouter } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { createRStyle } from "react-native-full-responsive";
@@ -19,6 +19,18 @@ export default function Login() {
         setLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            const waitForAuth = () =>
+                new Promise(resolve => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            resolve(user);
+                            unsubscribe(); // 콜백 한 번만 사용하고 해제
+                        }
+                    });
+                });
+
+            const confirmedUser = await waitForAuth();
+            console.log("실제로 반영된 user:", confirmedUser.uid);
             router.replace('/home');
         } catch (error) {
             console.error(error);

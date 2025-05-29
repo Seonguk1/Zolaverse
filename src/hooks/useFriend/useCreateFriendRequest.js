@@ -1,16 +1,27 @@
 import { db } from "@/config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useState } from "react";
 
 export default function useCreateFriendRequest() {
-    const handleCreateFriendRequest = async (from, to) => {
-        const friendRequestRef = doc(db, "friendRequests");
-        await setDoc(friendRequestRef, {
-            from,
-            to,
-            status: 'pending',
-            createdAt: new Date()
-        })
-    };
+    const [requestLoading, setRequestLoading] = useState(false);
+    const handleCreateFriendRequest = async (fromId, toId, fromNickname, toNickname) => {
+        try {
+            setRequestLoading(true);
+            await addDoc(collection(db, "friendRequests"), {
+                fromId, 
+                toId, 
+                fromNickname, 
+                toNickname,
+                status: "pending",
+                createdAt: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("친구 요청 생성 실패:", error);
+        }
+        finally {
+            setRequestLoading(false);
+        }
+    };  
 
-    return { handleCreateFriendRequest };
+    return { handleCreateFriendRequest, requestLoading };
 }
