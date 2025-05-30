@@ -1,6 +1,7 @@
 import LoadingView from '@/components/loading/LoadingView';
 import { SIZE, palette } from '@/constants/theme';
 import useGetUserDoc from '@/hooks/useUser/useGetUserDoc';
+import { getCurrentState } from "@/utils/timeUtils";
 import { useRouter } from "expo-router";
 import { FlatList, SafeAreaView, Text, View } from "react-native";
 import { createRStyle } from 'react-native-full-responsive';
@@ -19,10 +20,11 @@ export default function FriendsList() {
                 data={userFriends}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => {
+                    
                     return (
                         <View style={[styles.listItem, { flexDirection: "row", justifyContent: "space-between" }]}>
                             <Text>{item.nickname}</Text>
-                            
+                            <Text>{getCurrentState(item.sleepStart, item.sleepEnd, item.workStart, item.workEnd)}</Text>
                         </View>
                     )
                 }}
